@@ -20,4 +20,5 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:api')->group(function () {
     Route::post('deposit', [WalletController::class, 'deposit']);
     Route::post('transfer', [WalletController::class, 'transfer']);
+    Route::post('reverse/{transactionId}', [WalletController::class, 'reverseTransaction']);
 });

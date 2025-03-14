@@ -80,8 +80,68 @@ class WalletController extends Controller
                 200
             );
         } catch (\Exception $e) {
+
             DB::rollBack();
-            return response()->json(['error' => 'Falha na transferência'], 500);
+
+            return response()->json(
+                [
+                    'error' => 'Falha na transferência'
+                ],
+                500
+            );
+        }
+    }
+
+    public function reverseTransaction($transactionId)
+    {
+        $transaction = Transaction::find($transactionId);
+
+        if (!$transaction || $transaction->status !== 'completed') {
+            return response()->json(['error' => 'Transação inválida!'], 400);
+        }
+
+        if (Auth::id() !== $transaction->user_id) {
+            return response()->json(['error' => 'Você não tem permissão para reverter esta transação!'], 403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $user = User::find($transaction->user_id);
+
+            if ($transaction->type == 'deposit') {
+                $this->deductBalance($user, amount: $transaction->amount);
+            } elseif ($transaction->type == 'transfer') {
+                $targetUser = User::find($transaction->target_user_id);
+                $this->deductBalance(user: $targetUser, amount: $transaction->amount);
+                $this->updateBalance(user: $user, amount: $transaction->amount);
+                $targetUser->save();
+            }
+
+            $user->save();
+
+            $transaction->status = 'reversed';
+            $transaction->save();
+
+            DB::commit();
+
+            return response()->json(
+                [
+                    'message' => 'Transação revertida com sucesso',
+                    'saldo' => $user->balance,
+                ],
+                200
+            );
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json(
+                [
+                    'error' => 'Falha na reversão'
+                ],
+                401
+            );
         }
     }
 
