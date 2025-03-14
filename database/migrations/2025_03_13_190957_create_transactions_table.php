@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('target_user_id')->nullable()->constrained('users');
             $table->decimal('amount', 10, 2);
             $table->enum('type', ['deposit', 'transfer']);
-            $table->enum('status', ['pending', 'completed', 'reversed']);
+            $table->enum('status', allowed: ['completed', 'reversed']);
             $table->timestamps();
         });
     }
