@@ -29,6 +29,17 @@ class LoginAuthRequest extends FormRequest
         ];
     }
 
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'success' => false,
+                'mewssage' => 'Validation errors',
+                'errors' => $validator->errors()
+            ], 422)
+        );
+    }
+
     public function messages(): array
     {
         return [
