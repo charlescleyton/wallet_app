@@ -43,7 +43,7 @@ class RegisterAuthRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'success' => false,
-                'mewssage' => 'Validation errors',
+                'message' => 'Validation errors',
                 'errors' => $validator->errors()
             ], 422)
         );
