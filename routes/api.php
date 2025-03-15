@@ -12,14 +12,14 @@ Route::get('/', function () {
     ]);
 });
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', action: [AuthController::class, 'logout']);
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/logout', action: [AuthController::class, 'logout']);
 
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('deposit', action: [WalletController::class, 'deposit']);
-    Route::post('transfer', [WalletController::class, 'transfer']);
-    Route::post('reverse/{transactionId}', [WalletController::class, 'reverseTransaction']);
-    Route::get('statement', [WalletController::class, 'statement']);
+    Route::post('wallet/deposit', action: [WalletController::class, 'deposit']);
+    Route::post('wallet/transfer', [WalletController::class, 'transfer']);
+    Route::post('wallet/reverse/{transactionId}', [WalletController::class, 'reverseTransaction']);
+    Route::get('wallet/statement', [WalletController::class, 'statement']);
 });
