@@ -66,7 +66,7 @@ class WalletController extends Controller
             DB::rollBack();
             return $this->errorResponse(
                 'Falha no depósito!',
-                401
+                500
             );
         }
     }
@@ -78,8 +78,8 @@ class WalletController extends Controller
 
         if (!$targetUser) {
             return $this->errorResponse(
-                'Usuário alvo não encontrado!',
-                404
+                'O campo target_user_id deve ser um usuário existente',
+                422
             );
         }
         if ($user->balance < 0) {
