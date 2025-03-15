@@ -16,10 +16,8 @@ class WalletController extends Controller
         $user = Auth::user();
         DB::beginTransaction();
         if ($user->balance < 0) {
-            return response()->json(
-                [
-                    'message' => 'Depósito não realizado. Seu saldo atual está negativo. Por favor, entre em contato com o suporte para regularizar sua situação antes de realizar novos depósitos'
-                ],
+            return $this->errorResponse(
+                'Transação não autorizada, seu saldo atual está negativo.',
                 403
             );
         }
@@ -33,20 +31,15 @@ class WalletController extends Controller
 
             DB::commit();
 
-            return response()->json(
-                [
-                    'message' => 'Deposito realizado com sucesso para ' . $user->name,
-                    'transação' => $transaction,
-                    'saldo' => $user->balance,
-                ],
-                200
+            return $this->successResponse(
+                'Deposito realizado com sucesso para ' . $user->name,
+                $transaction,
+                $user->balance,
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(
-                [
-                    'error' => 'Falha no depósito!'
-                ],
+            return $this->errorResponse(
+                'Falha no depósito!',
                 401
             );
         }
@@ -58,13 +51,14 @@ class WalletController extends Controller
         $targetUser = User::find($transferRequest->target_user_id);
 
         if (!$targetUser) {
-            return response()->json(['error' => 'Usuário alvo não encontrado!'], 404);
+            return $this->errorResponse(
+                'Usuário alvo não encontrado!',
+                404
+            );
         }
         if ($user->balance < 0) {
-            return response()->json(
-                [
-                    'message' => "Transferência não realizada. Seu saldo atual está negativo. Por favor, regularize sua situação antes de realizar novas transferências. Entre em contato com o suporte para mais informações."
-                ],
+            return $this->errorResponse(
+                'Transação não autorizada. Seu saldo atual está negativo.',
                 403
             );
         }
@@ -73,7 +67,11 @@ class WalletController extends Controller
 
         try {
             if ($user->balance < $transferRequest->amount) {
-                return response()->json(['error' => 'Transferência não realizada, seu saldo é insuficiente!'], 400);
+
+                return $this->errorResponse(
+                    'Transação não autorizada, seu saldo é insuficiente para esta transferência.',
+                    403
+                );
             }
             $user = $this->deductBalance($user, amount: $transferRequest->amount);
             $targetUser = $this->updateBalance($targetUser, amount: $transferRequest->amount);
@@ -87,22 +85,17 @@ class WalletController extends Controller
 
             DB::commit();
 
-            return response()->json(
-                [
-                    'message' => 'Transferência realizada com sucesso',
-                    'transaction' => $transaction,
-                    'saldo' => $user->balance,
-                ],
-                200
+            return $this->successResponse(
+                'Transferência realizada com sucesso',
+                $transaction,
+                $user->balance,
             );
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json(
-                [
-                    'error' => 'Falha na transferência'
-                ],
+            return $this->errorResponse(
+                'Falha na transferência',
                 500
             );
         }
@@ -112,11 +105,17 @@ class WalletController extends Controller
     {
         $transaction = Transaction::find($transactionId);
         if (!$transaction || $transaction->status !== 'completed') {
-            return response()->json(['error' => 'Transação já revertida ou inválida!'], 400);
+            return $this->errorResponse(
+                'Transação já revertida ou identificador inválido!',
+                400
+            );
         }
 
         if (Auth::id() !== $transaction->user_id) {
-            return response()->json(['error' => 'Você não tem permissão para reverter esta transação!'], 403);
+            return $this->errorResponse(
+                'Você não tem permissão para reverter esta transação!',
+                403
+            );
         }
 
         DB::beginTransaction();
@@ -140,21 +139,17 @@ class WalletController extends Controller
 
             DB::commit();
 
-            return response()->json(
-                [
-                    'message' => 'Transação revertida com sucesso!',
-                    'saldo' => $user->balance,
-                ],
-                200
+            return $this->successResponse(
+                'Transação revertida com sucesso!',
+                $transaction->type,
+                $user->balance,
             );
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json(
-                [
-                    'error' => 'Falha na reversão!'
-                ],
+            return $this->errorResponse(
+                'Falha na reversão!',
                 401
             );
         }
@@ -187,5 +182,24 @@ class WalletController extends Controller
             'type' => $type,
             'status' => 'completed',
         ]);
+    }
+
+    private function successResponse(string $message, $transaction = null, float $balance)
+    {
+        return response()->json([
+            'message' => $message,
+            'transaction' => $transaction,
+            'saldo' => $balance,
+        ], 200);
+    }
+
+    private function errorResponse(string $message, int $statusCode)
+    {
+        return response()->json(
+            [
+                'error' => $message
+            ],
+            $statusCode
+        );
     }
 }
