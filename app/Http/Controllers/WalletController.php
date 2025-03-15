@@ -15,15 +15,21 @@ class WalletController extends Controller
     {
         $user = Auth::user();
         DB::beginTransaction();
-
+        if ($user->balance < 0) {
+            return response()->json(
+                [
+                    'message' => 'Depósito não realizado. Seu saldo atual está negativo. Por favor, entre em contato com o suporte para regularizar sua situação antes de realizar novos depósitos'
+                ],
+                403
+            );
+        }
         try {
             $user = $this->updateBalance($user, amount: $depositRequest->amount);
-            $transaction = Transaction::create([
-                'user_id' => $user->id,
-                'amount' => $depositRequest->amount,
-                'type' => 'deposit',
-                'status' => 'completed',
-            ]);
+            $transaction = $this->createTransaction(
+                $user->id,
+                $depositRequest->amount,
+                'deposit'
+            );
 
             DB::commit();
 
@@ -51,23 +57,33 @@ class WalletController extends Controller
         $user = Auth::user();
         $targetUser = User::find($transferRequest->target_user_id);
 
-        if ($user->balance < $transferRequest->amount) {
-            return response()->json(['error' => 'Saldo insuficiente!'], 400);
+        if (!$targetUser) {
+            return response()->json(['error' => 'Usuário alvo não encontrado!'], 404);
+        }
+        if ($user->balance < 0) {
+            return response()->json(
+                [
+                    'message' => "Transferência não realizada. Seu saldo atual está negativo. Por favor, regularize sua situação antes de realizar novas transferências. Entre em contato com o suporte para mais informações."
+                ],
+                403
+            );
         }
 
         DB::beginTransaction();
 
         try {
+            if ($user->balance < $transferRequest->amount) {
+                return response()->json(['error' => 'Transferência não realizada, seu saldo é insuficiente!'], 400);
+            }
             $user = $this->deductBalance($user, amount: $transferRequest->amount);
             $targetUser = $this->updateBalance($targetUser, amount: $transferRequest->amount);
 
-            $transaction = Transaction::create([
-                'user_id' => $user->id,
-                'target_user_id' => $targetUser->id,
-                'amount' => $transferRequest->amount,
-                'type' => 'transfer',
-                'status' => 'completed',
-            ]);
+            $transaction = $this->createTransaction(
+                $user->id,
+                $transferRequest->amount,
+                'transfer',
+                $targetUser->id
+            );
 
             DB::commit();
 
@@ -95,9 +111,8 @@ class WalletController extends Controller
     public function reverseTransaction($transactionId)
     {
         $transaction = Transaction::find($transactionId);
-
         if (!$transaction || $transaction->status !== 'completed') {
-            return response()->json(['error' => 'Transação inválida!'], 400);
+            return response()->json(['error' => 'Transação já revertida ou inválida!'], 400);
         }
 
         if (Auth::id() !== $transaction->user_id) {
@@ -127,7 +142,7 @@ class WalletController extends Controller
 
             return response()->json(
                 [
-                    'message' => 'Transação revertida com sucesso',
+                    'message' => 'Transação revertida com sucesso!',
                     'saldo' => $user->balance,
                 ],
                 200
@@ -138,7 +153,7 @@ class WalletController extends Controller
 
             return response()->json(
                 [
-                    'error' => 'Falha na reversão'
+                    'error' => 'Falha na reversão!'
                 ],
                 401
             );
@@ -157,5 +172,20 @@ class WalletController extends Controller
         $user->balance -= $amount;
         $user->save();
         return $user;
+    }
+
+    private function createTransaction(
+        int $userId,
+        float $amount,
+        string $type,
+        ?int $targetUserId = null
+    ): Transaction {
+        return Transaction::create([
+            'user_id' => $userId,
+            'target_user_id' => $targetUserId,
+            'amount' => $amount,
+            'type' => $type,
+            'status' => 'completed',
+        ]);
     }
 }
