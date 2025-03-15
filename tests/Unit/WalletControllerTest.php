@@ -112,7 +112,7 @@ class WalletControllerTest extends TestCase
         ]);
         $token = JWTAuth::fromUser($user);
 
-        \DB::shouldReceive('beginTransaction')->andThrow(new \Exception('Database error'));
+        DB::shouldReceive('beginTransaction')->andThrow(new \Exception('Database error'));
 
         $data = ['amount' => 100.00];
 
@@ -204,7 +204,7 @@ class WalletControllerTest extends TestCase
         );
         $token = JWTAuth::fromUser($user);
 
-        \DB::shouldReceive('beginTransaction')->andThrow(new \Exception('Database error'));
+        DB::shouldReceive('beginTransaction')->andThrow(new \Exception('Database error'));
 
         $data = [
             'target_user_id' => 9999,
