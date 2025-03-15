@@ -6,11 +6,37 @@ use App\Http\Requests\DepositRequest;
 use App\Http\Requests\TransferRequest;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
 {
+
+
+    public function statement(Request $request)
+    {
+        $user = Auth::user();
+
+        $transactions = Transaction::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($transactions->isEmpty()) {
+            return $this->errorResponse(
+                'Você não tem transações registradas.',
+                404
+            );
+        }
+
+        return $this->successResponse(
+            'Extrato obtido com sucesso.',
+            $transactions,
+            $user->balance
+        );
+    }
+
+
     public function deposit(DepositRequest $depositRequest)
     {
         $user = Auth::user();
