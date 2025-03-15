@@ -9,10 +9,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
+# php artisan test --filter=WalletControllerTest
 class WalletControllerTest extends TestCase
 {
     use RefreshDatabase;
-
+    # php artisan test --filter=walletControllerTest::test_statement_success
     public function test_statement_success()
     {
         $user = User::factory()->create([
@@ -44,6 +45,7 @@ class WalletControllerTest extends TestCase
             ->assertJsonCount(2, 'transaction');
     }
 
+    # php artisan test --filter=walletControllerTest::test_statement_no_transactions
     public function test_statement_no_transactions()
     {
         $user = User::factory()->create([
@@ -60,6 +62,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_deposit_success
     public function test_deposit_success()
     {
         $user = User::factory()->create([
@@ -80,6 +83,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_deposit_negative_balance
     public function test_deposit_negative_balance()
     {
         $user = User::factory()->create([
@@ -99,6 +103,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_deposit_exception
     public function test_deposit_exception()
     {
         $user = User::factory()->create([
@@ -120,6 +125,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_transfer_success
     public function test_transfer_success()
     {
         $user = User::factory()->create([
@@ -141,6 +147,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_transfer_insufficient_balance
     public function test_transfer_insufficient_balance()
     {
         $user = User::factory()->create([
@@ -163,6 +170,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_transfer_user_not_found
     public function test_transfer_user_not_found()
     {
         $user = User::factory()->create([
@@ -188,7 +196,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
-
+    # php artisan test --filter=walletControllerTest::test_transfer_exception
     public function test_transfer_exception()
     {
         $user = User::factory()->create(
@@ -216,8 +224,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
-
-
+    # php artisan test --filter=walletControllerTest::test_reverse_transaction_success
     public function test_reverse_transaction_success()
     {
         $user = User::factory()->create([
@@ -240,6 +247,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_reverse_transaction_permission_error
     public function test_reverse_transaction_permission_error()
     {
         $user = User::factory()->create([
@@ -265,6 +273,7 @@ class WalletControllerTest extends TestCase
             ]);
     }
 
+    # php artisan test --filter=walletControllerTest::test_reverse_transaction_invalid
     public function test_reverse_transaction_invalid()
     {
         $user = User::factory()->create([
