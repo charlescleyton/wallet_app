@@ -27,6 +27,7 @@ class RegisterAuthRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
+            'cpf' => ['required', 'cpf', 'min:11', 'unique:users,cpf'],
             'password' => [
                 'required',
                 Password::min(8)
@@ -60,6 +61,11 @@ class RegisterAuthRequest extends FormRequest
             'email.required' => 'O e-mail é obrigatório.',
             'email.email' => 'O e-mail informado não é válido.',
             'email.unique' => 'O e-mail informado já está em uso.',
+
+            'cpf.required' => 'O campo CPF o é obrigatório.',
+            'cpf.unique' => 'O CPF o informado já está cadastrado.',
+            'cpf.min' => 'O campo CPF o deve ter no mínimo 11 caracteres.',
+            'cpf.cpf' => 'O campo CPF o deve ser um CPF válido.',
 
             'password.required' => 'A senha é obrigatória.',
             'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
