@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DepositRequest;
-use App\Http\Requests\TransferRequest;
+use App\Http\Requests\WalletDepositRequest;
+use App\Http\Requests\WalletTransferRequest;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -37,7 +37,7 @@ class WalletController extends Controller
     }
 
 
-    public function deposit(DepositRequest $depositRequest)
+    public function deposit(WalletDepositRequest $walletDepositRequest)
     {
         $user = Auth::user();
         DB::beginTransaction();
@@ -48,10 +48,10 @@ class WalletController extends Controller
             );
         }
         try {
-            $user = $this->updateBalance($user, amount: $depositRequest->amount);
+            $user = $this->updateBalance($user, amount: $walletDepositRequest->amount);
             $transaction = $this->createTransaction(
                 $user->id,
-                $depositRequest->amount,
+                $walletDepositRequest->amount,
                 'deposit'
             );
 
@@ -71,10 +71,10 @@ class WalletController extends Controller
         }
     }
 
-    public function transfer(TransferRequest $transferRequest)
+    public function transfer(WalletTransferRequest $walletDepositRequest)
     {
         $user = Auth::user();
-        $targetUser = User::find($transferRequest->target_user_id);
+        $targetUser = User::find($walletDepositRequest->target_user_id);
 
         if (!$targetUser) {
             return $this->errorResponse(
@@ -92,19 +92,19 @@ class WalletController extends Controller
         DB::beginTransaction();
 
         try {
-            if ($user->balance < $transferRequest->amount) {
+            if ($user->balance < $walletDepositRequest->amount) {
 
                 return $this->errorResponse(
                     'Transação não autorizada, seu saldo é insuficiente para esta transferência.',
                     403
                 );
             }
-            $user = $this->deductBalance($user, amount: $transferRequest->amount);
-            $targetUser = $this->updateBalance($targetUser, amount: $transferRequest->amount);
+            $user = $this->deductBalance($user, amount: $walletDepositRequest->amount);
+            $targetUser = $this->updateBalance($targetUser, amount: $walletDepositRequest->amount);
 
             $transaction = $this->createTransaction(
                 $user->id,
-                $transferRequest->amount,
+                $walletDepositRequest->amount,
                 'transfer',
                 $targetUser->id
             );

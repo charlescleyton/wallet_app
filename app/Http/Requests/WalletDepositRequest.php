@@ -3,10 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
-class TransferRequest extends FormRequest
+class WalletDepositRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class TransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => ['required', 'numeric', 'min:1'],
-            'target_user_id' => ['required', 'exists:users,id']
+            'amount' => ['required', 'numeric', 'min:1']
         ];
     }
 
@@ -46,9 +45,6 @@ class TransferRequest extends FormRequest
             'amount.required' => 'O campo amount é obrigatório',
             'amount.numeric' => 'O campo amount deve ser um número',
             'amount.min' => 'O campo amount deve ser maior que 0',
-
-            'target_user_id.required' => 'O campo target_user_id é obrigatório',
-            'target_user_id.exists' => 'O campo target_user_id deve ser um usuário existente',
         ];
     }
 }
