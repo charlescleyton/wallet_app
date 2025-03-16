@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este projeto é uma aplicação de carteira digital (wallet) desenvolvida com Laravel, utilizando Laravel Sail para ambiente de desenvolvimento com Docker e Laravel Telescope para observabilidade e depuração.
+Este projeto é uma aplicação de carteira digital (wallet) desenvolvida com Laravel, utilizando Laravel Sail para ambiente de desenvolvimento com Docker, JWT para autenticação via We Token e Laravel Telescope para observabilidade e depuração.
 
 ### Tecnologias Necessárias para instalação da API
 
