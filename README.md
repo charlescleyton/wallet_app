@@ -1,5 +1,7 @@
 # API Carteira Financeira - WalletApi
 
+#### Projeto desafio para a vaga de desenvolvedor Backend PHP para o Grupo Adriano Cobuccio
+
 ## Visão Geral
 
 Este projeto é uma aplicação de carteira digital (wallet) desenvolvida com Laravel, utilizando Laravel Sail para ambiente de desenvolvimento com Docker e Laravel Telescope para observabilidade e depuração.
