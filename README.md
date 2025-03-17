@@ -52,6 +52,18 @@ DB_PASSWORD=password
 composer update
 ```
 
+### Instale o Sail nas dependencias do projeto:
+
+```
+composer require laravel/sail --dev
+```
+### Oublique a configuração do Sail:
+
+```
+php artisan sail:install
+
+```
+
 ### Inicie o ambiente Docker com Laravel Sail:
 
 ```
@@ -62,6 +74,12 @@ composer update
 
 ```
 ./vendor/bin/sail artisan key:generate
+```
+
+### Gere a chave secreta do JWT:
+
+```
+./vendor/bin/sail artisan jwt:secret
 ```
 
 ### Execute as migrações do banco de dados:
